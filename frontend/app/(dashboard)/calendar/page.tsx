@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { vacationsApi } from '@/lib/api';
 import { VacationRequest, VacationStatus } from '@/lib/types';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 interface CalendarDay {
   date: Date;

@@ -5,9 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { employeesApi } from '@/lib/api';
 import { Employee, EmployeeRequest, Role, ApiError } from '@/lib/types';
 import Table from '@/components/ui/Table';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import Modal from '@/components/ui/Modal';
-import Input from '@/components/ui/Input';
+import { Input } from '@/components/ui/Input';
 import { Plus, Edit, Trash2, UserCheck, UserX } from 'lucide-react';
 
 export default function EmployeesPage() {
@@ -185,7 +185,8 @@ export default function EmployeesPage() {
           </p>
         </div>
         {isAdmin && (
-          <Button onClick={() => handleOpenModal()} leftIcon={<Plus size={18} />}>
+          <Button onClick={() => handleOpenModal()}>
+            <Plus size={18} />
             Novo Colaborador
           </Button>
         )}
@@ -214,24 +215,28 @@ export default function EmployeesPage() {
         title={editingEmployee ? 'Editar Colaborador' : 'Novo Colaborador'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Nome Completo"
-            value={formData.fullName}
-            onChange={(e) =>
-              setFormData({ ...formData, fullName: e.target.value })
-            }
-            required
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Nome Completo *</label>
+            <Input
+              value={formData.fullName}
+              onChange={(e) =>
+                setFormData({ ...formData, fullName: e.target.value })
+              }
+              required
+            />
+          </div>
 
-          <Input
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            required
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Email *</label>
+            <Input
+              type="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              required
+            />
+          </div>
 
           {error && (
             <div className="p-3 rounded-lg bg-[var(--status-rejected-bg)] text-[var(--status-rejected)] text-sm">

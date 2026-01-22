@@ -8,15 +8,21 @@ import {
   Home,
   Users,
   Calendar,
-  Palmtree,
+  FileText,
   ClipboardList,
-  UserCog,
+  Settings,
+  HelpCircle,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
   X,
 } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
 interface NavItem {
@@ -24,13 +30,20 @@ interface NavItem {
   label: string;
   icon: React.ReactNode;
   roles?: Role[];
+  badge?: number;
 }
 
-const navItems: NavItem[] = [
+const mainNavItems: NavItem[] = [
   {
     href: '/',
-    label: 'Início',
+    label: 'Dashboard',
     icon: <Home size={20} />,
+  },
+  {
+    href: '/vacations',
+    label: 'Solicitações',
+    icon: <FileText size={20} />,
+    badge: 3,
   },
   {
     href: '/employees',
@@ -39,36 +52,71 @@ const navItems: NavItem[] = [
     roles: [Role.ADMIN, Role.MANAGER],
   },
   {
-    href: '/vacations',
-    label: 'Férias',
-    icon: <Palmtree size={20} />,
-  },
-  {
     href: '/calendar',
     label: 'Calendário',
     icon: <Calendar size={20} />,
   },
+];
+
+const secondaryNavItems: NavItem[] = [
   {
     href: '/audit',
-    label: 'Auditoria',
-    icon: <ClipboardList size={20} />,
+    label: 'Configurações',
+    icon: <Settings size={20} />,
     roles: [Role.ADMIN],
   },
   {
-    href: '/users',
-    label: 'Utilizadores',
-    icon: <UserCog size={20} />,
-    roles: [Role.ADMIN],
+    href: '/accessibility',
+    label: 'Ajuda',
+    icon: <HelpCircle size={20} />,
   },
 ];
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
-  const { hasRole } = useAuth();
+  const { hasRole, logout } = useAuth();
 
-  const filteredNavItems = navItems.filter(
-    (item) => !item.roles || item.roles.some((role) => hasRole(role))
-  );
+  const filterByRole = (items: NavItem[]) =>
+    items.filter((item) => !item.roles || item.roles.some((role) => hasRole(role)));
+
+  const filteredMainNav = filterByRole(mainNavItems);
+  const filteredSecondaryNav = filterByRole(secondaryNavItems);
+
+  const NavLink = ({ item }: { item: NavItem }) => {
+    const isActive = pathname === item.href;
+    return (
+      <Link
+        href={item.href}
+        onClick={onClose}
+        className={`
+          flex items-center gap-3 px-3 py-2.5 rounded-lg
+          text-sm font-medium transition-all relative
+          ${isCollapsed ? 'justify-center' : ''}
+          ${
+            isActive
+              ? 'bg-[var(--lbc-primary)] text-white'
+              : 'text-[var(--lbc-text)] hover:bg-[var(--lbc-bg-secondary)]'
+          }
+        `}
+        title={isCollapsed ? item.label : undefined}
+      >
+        {item.icon}
+        {!isCollapsed && <span>{item.label}</span>}
+        {item.badge && !isCollapsed && (
+          <span className={`ml-auto px-2 py-0.5 text-xs font-semibold rounded-full ${
+            isActive ? 'bg-white/20 text-white' : 'bg-[var(--lbc-primary)] text-white'
+          }`}>
+            {item.badge}
+          </span>
+        )}
+        {item.badge && isCollapsed && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-semibold rounded-full bg-[var(--lbc-primary)] text-white">
+            {item.badge}
+          </span>
+        )}
+      </Link>
+    );
+  };
 
   return (
     <>
@@ -83,23 +131,34 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 z-50 h-full w-64 
-          bg-[var(--lbc-card)] border-r border-[var(--lbc-border)]
-          transform transition-transform duration-300 ease-in-out
+          fixed top-0 left-0 z-50 h-full
+          bg-white border-r border-[var(--lbc-border)]
+          transform transition-all duration-300 ease-in-out
           lg:translate-x-0 lg:static lg:z-auto
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${isCollapsed ? 'w-16' : 'w-64'}
         `}
       >
-        {/* Logo / Header */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-[var(--lbc-border)]">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[var(--lbc-primary)] flex items-center justify-center">
-              <Palmtree size={20} className="text-white" />
-            </div>
-            <span className="text-lg font-bold text-[var(--lbc-text)]">
-              VacationManager
-            </span>
-          </Link>
+        {/* Header */}
+        <div className={`flex items-center h-16 px-4 border-b border-[var(--lbc-border)] ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          {!isCollapsed && (
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[var(--lbc-primary)] flex items-center justify-center">
+                <Calendar size={18} className="text-white" />
+              </div>
+              <span className="text-lg font-bold text-[var(--lbc-text)]">VacationManager</span>
+            </Link>
+          )}
+          
+          {/* Collapse button - Desktop */}
+          <button
+            onClick={onToggleCollapse}
+            className="hidden lg:flex w-8 h-8 items-center justify-center rounded-lg hover:bg-[var(--lbc-bg-secondary)] text-[var(--lbc-muted)]"
+          >
+            {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </button>
+
+          {/* Close button - Mobile */}
           <button
             onClick={onClose}
             className="lg:hidden p-2 rounded-lg hover:bg-[var(--lbc-bg-secondary)]"
@@ -109,39 +168,41 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-1">
-          {filteredNavItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-lg
-                  text-sm font-medium transition-colors
-                  ${
-                    isActive
-                      ? 'bg-[var(--lbc-primary)] text-white'
-                      : 'text-[var(--lbc-text)] hover:bg-[var(--lbc-bg-secondary)]'
-                  }
-                `}
-              >
-                {item.icon}
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <div className="flex flex-col h-[calc(100%-4rem)] p-3">
+          {/* Main Nav */}
+          <nav className="space-y-1">
+            {filteredMainNav.map((item) => (
+              <NavLink key={item.href} item={item} />
+            ))}
+          </nav>
 
-        {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[var(--lbc-border)]">
-          <Link
-            href="/accessibility"
-            className="text-xs text-[var(--lbc-muted)] hover:text-[var(--lbc-primary)]"
+          {/* Divider */}
+          <div className="my-4 border-t border-[var(--lbc-border)]" />
+
+          {/* Secondary Nav */}
+          <nav className="space-y-1">
+            {filteredSecondaryNav.map((item) => (
+              <NavLink key={item.href} item={item} />
+            ))}
+          </nav>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Logout */}
+          <button
+            onClick={logout}
+            className={`
+              flex items-center gap-3 px-3 py-2.5 rounded-lg
+              text-sm font-medium text-[var(--lbc-muted)] hover:bg-[var(--lbc-bg-secondary)] hover:text-[var(--status-rejected)]
+              transition-colors
+              ${isCollapsed ? 'justify-center' : ''}
+            `}
+            title={isCollapsed ? 'Sair' : undefined}
           >
-            Acessibilidade
-          </Link>
+            <LogOut size={20} />
+            {!isCollapsed && <span>Sair</span>}
+          </button>
         </div>
       </aside>
     </>

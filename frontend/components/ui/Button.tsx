@@ -1,67 +1,62 @@
-import React from 'react';
-import { Loader2 } from 'lucide-react';
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'outline' | 'ghost' | 'danger' | 'success';
-type ButtonSize = 'sm' | 'md' | 'lg';
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow hover:bg-[hsl(var(--primary))]/90",
+        destructive:
+          "bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] shadow-sm hover:bg-[hsl(var(--destructive))]/90",
+        outline:
+          "border border-[hsl(var(--input))] bg-[hsl(var(--background))] shadow-sm hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]",
+        secondary:
+          "bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))] shadow-sm hover:bg-[hsl(var(--secondary))]/80",
+        ghost: "hover:bg-[hsl(var(--accent))] hover:text-[hsl(var(--accent-foreground))]",
+        link: "text-[hsl(var(--primary))] underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-9 w-9",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
   isLoading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-  children: React.ReactNode;
 }
 
-const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-[var(--lbc-primary)] text-white hover:bg-[var(--lbc-primary-hover)] shadow-md hover:shadow-lg',
-  secondary: 'bg-[var(--lbc-secondary)] text-white hover:bg-[var(--lbc-secondary-hover)] shadow-md hover:shadow-lg',
-  accent: 'bg-[var(--lbc-accent)] text-white hover:bg-[var(--lbc-accent-hover)] shadow-md hover:shadow-lg',
-  outline: 'border-2 border-[var(--lbc-border)] bg-transparent text-[var(--lbc-text)] hover:bg-[var(--lbc-bg-secondary)] hover:border-[var(--lbc-muted)]',
-  ghost: 'bg-transparent text-[var(--lbc-text)] hover:bg-[var(--lbc-bg-secondary)]',
-  danger: 'bg-[var(--status-rejected)] text-white hover:bg-red-600 shadow-md hover:shadow-lg',
-  success: 'bg-[var(--status-approved)] text-white hover:bg-green-600 shadow-md hover:shadow-lg',
-};
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, isLoading = false, disabled, children, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        disabled={disabled || isLoading}
+        {...props}
+      >
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+        {children}
+      </Comp>
+    );
+  }
+);
+Button.displayName = "Button";
 
-const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'h-9 px-4 text-sm',
-  md: 'h-11 px-6 text-sm',
-  lg: 'h-12 px-8 text-base',
-};
-
-export default function Button({
-  variant = 'primary',
-  size = 'md',
-  isLoading = false,
-  leftIcon,
-  rightIcon,
-  children,
-  className = '',
-  disabled,
-  ...props
-}: ButtonProps) {
-  return (
-    <button
-      className={`
-        inline-flex items-center justify-center gap-2.5
-        font-semibold rounded-xl
-        transition-all duration-200
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
-        active:scale-[0.98]
-        ${variantClasses[variant]}
-        ${sizeClasses[size]}
-        ${className}
-      `}
-      disabled={disabled || isLoading}
-      {...props}
-    >
-      {isLoading ? (
-        <Loader2 size={18} className="animate-spin" />
-      ) : (
-        leftIcon
-      )}
-      {children}
-      {!isLoading && rightIcon}
-    </button>
-  );
-}
+export { Button, buttonVariants };

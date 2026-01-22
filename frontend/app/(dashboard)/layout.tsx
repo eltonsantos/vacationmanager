@@ -1,11 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import Sidebar from '@/components/layout/Sidebar';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 
 export default function DashboardLayout({
   children,
@@ -18,14 +17,17 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--lbc-bg)]">
-        <div className="w-12 h-12 border-4 border-[var(--lbc-primary)] border-t-transparent rounded-full animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
       </div>
     );
   }
@@ -35,19 +37,18 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen flex bg-[var(--lbc-bg)]">
-      {/* Sidebar */}
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="flex min-h-screen bg-background">
+      <DashboardSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen lg:ml-0">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
-        
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">
+      <div className="flex flex-1 flex-col">
+        <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
+
+        <main className="flex-1 p-6 overflow-auto">
           {children}
         </main>
-
-        <Footer />
       </div>
     </div>
   );

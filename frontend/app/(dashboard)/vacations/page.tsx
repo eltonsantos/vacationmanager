@@ -5,9 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { vacationsApi, employeesApi } from '@/lib/api';
 import { VacationRequest, VacationRequestDto, VacationStatus, Role, Employee, ApiError } from '@/lib/types';
 import Table from '@/components/ui/Table';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import Modal from '@/components/ui/Modal';
-import Input from '@/components/ui/Input';
+import { Input } from '@/components/ui/Input';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { Plus, Check, X, Ban, Calendar } from 'lucide-react';
 
@@ -232,7 +232,8 @@ export default function VacationsPage() {
             Pedidos de férias da organização
           </p>
         </div>
-        <Button onClick={handleOpenModal} leftIcon={<Plus size={18} />}>
+        <Button onClick={handleOpenModal}>
+          <Plus size={18} />
           Novo Pedido
         </Button>
       </div>
@@ -282,20 +283,24 @@ export default function VacationsPage() {
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Data Início"
-              type="date"
-              value={formData.startDate}
-              onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-              required
-            />
-            <Input
-              label="Data Fim"
-              type="date"
-              value={formData.endDate}
-              onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-              required
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Data Início *</label>
+              <Input
+                type="date"
+                value={formData.startDate}
+                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Data Fim *</label>
+              <Input
+                type="date"
+                value={formData.endDate}
+                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                required
+              />
+            </div>
           </div>
 
           <div>
@@ -367,7 +372,7 @@ export default function VacationsPage() {
               Cancelar
             </Button>
             <Button
-              variant={decisionType === 'approve' ? 'success' : 'danger'}
+              variant={decisionType === 'approve' ? 'default' : 'destructive'}
               onClick={handleDecision}
               isLoading={isSaving}
             >

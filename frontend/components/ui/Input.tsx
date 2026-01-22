@@ -1,61 +1,21 @@
-import React from 'react';
+﻿import * as React from "react";
+import { cn } from "@/lib/utils";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  helperText?: string;
-  leftIcon?: React.ReactNode;
-}
-
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, helperText, leftIcon, className = '', id, ...props }, ref) => {
-    const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
-
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
     return (
-      <div className="w-full">
-        {label && (
-          <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-[var(--lbc-text)] mb-2"
-          >
-            {label}
-          </label>
+      <input
+        type={type}
+        className={cn(
+          "flex h-10 w-full rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2 text-base ring-offset-[hsl(var(--background))] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          className
         )}
-        <div className="relative">
-          {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <span className="text-[var(--lbc-muted)]">{leftIcon}</span>
-            </div>
-          )}
-          <input
-            ref={ref}
-            id={inputId}
-            className={`
-              w-full h-12 text-base
-              ${leftIcon ? 'pl-12 pr-4' : 'px-4'}
-              border-2 rounded-xl
-              bg-[var(--lbc-card)] text-[var(--lbc-text)]
-              placeholder-[var(--lbc-muted-light)]
-              transition-all duration-200
-              focus:outline-none focus:border-[var(--lbc-primary)] focus:ring-4 focus:ring-[var(--lbc-primary)]/10
-              disabled:bg-[var(--lbc-bg-secondary)] disabled:cursor-not-allowed disabled:opacity-60
-              ${error ? 'border-[var(--status-rejected)]' : 'border-[var(--lbc-border)]'}
-              ${className}
-            `}
-            {...props}
-          />
-        </div>
-        {error && (
-          <p className="mt-2 text-sm text-[var(--status-rejected)]">{error}</p>
-        )}
-        {helperText && !error && (
-          <p className="mt-2 text-sm text-[var(--lbc-muted)]">{helperText}</p>
-        )}
-      </div>
+        ref={ref}
+        {...props}
+      />
     );
   }
 );
+Input.displayName = "Input";
 
-Input.displayName = 'Input';
-
-export default Input;
+export { Input };

@@ -43,6 +43,7 @@ export interface User {
   id: string;
   email: string;
   role: Role;
+  employeeId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -84,6 +85,7 @@ export interface VacationRequest {
   daysCount: number;
   status: VacationStatus;
   requestedAt: string;
+  createdAt: string;
   decisionAt: string | null;
   decidedByUserId: string | null;
   decidedByEmail: string | null;
