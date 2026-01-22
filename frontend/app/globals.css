@@ -1,0 +1,456 @@
+@import "tailwindcss";
+
+/* ================================
+   VacationManager - LBC Theme
+   ================================ */
+
+:root {
+  /* Primary Colors */
+  --lbc-primary: #0B7C8F;
+  --lbc-primary-hover: #096b7c;
+  --lbc-primary-light: #0d8fa5;
+  --lbc-secondary: #4FB6C2;
+  --lbc-secondary-hover: #3ea8b5;
+  --lbc-accent: #F4A261;
+  --lbc-accent-hover: #e8944f;
+  
+  /* Background */
+  --lbc-bg: #F6F8FA;
+  --lbc-bg-secondary: #EDF0F3;
+  --lbc-card: #FFFFFF;
+  --lbc-card-hover: #F9FAFB;
+  
+  /* Text */
+  --lbc-text: #1F2937;
+  --lbc-text-secondary: #374151;
+  --lbc-muted: #6B7280;
+  --lbc-muted-light: #9CA3AF;
+  
+  /* Borders */
+  --lbc-border: #E5E7EB;
+  --lbc-border-dark: #D1D5DB;
+  
+  /* Status Colors */
+  --status-pending: #F59E0B;
+  --status-pending-bg: #FEF3C7;
+  --status-approved: #10B981;
+  --status-approved-bg: #D1FAE5;
+  --status-rejected: #EF4444;
+  --status-rejected-bg: #FEE2E2;
+  --status-cancelled: #6B7280;
+  --status-cancelled-bg: #F3F4F6;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+.dark {
+  /* Background - Dark Mode */
+  --lbc-bg: #0F172A;
+  --lbc-bg-secondary: #1E293B;
+  --lbc-card: #1E293B;
+  --lbc-card-hover: #334155;
+  
+  /* Text - Dark Mode */
+  --lbc-text: #F1F5F9;
+  --lbc-text-secondary: #E2E8F0;
+  --lbc-muted: #94A3B8;
+  --lbc-muted-light: #64748B;
+  
+  /* Borders - Dark Mode */
+  --lbc-border: #334155;
+  --lbc-border-dark: #475569;
+  
+  /* Status - Dark Mode (adjusted for dark backgrounds) */
+  --status-pending-bg: #78350F;
+  --status-approved-bg: #064E3B;
+  --status-rejected-bg: #7F1D1D;
+  --status-cancelled-bg: #374151;
+}
+
+/* ================================
+   Base Styles
+   ================================ */
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--lbc-bg);
+  color: var(--lbc-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--lbc-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--lbc-primary-hover);
+}
+
+/* ================================
+   Utility Classes
+   ================================ */
+
+.bg-primary {
+  background-color: var(--lbc-primary);
+}
+
+.bg-secondary {
+  background-color: var(--lbc-secondary);
+}
+
+.bg-accent {
+  background-color: var(--lbc-accent);
+}
+
+.bg-card {
+  background-color: var(--lbc-card);
+}
+
+.text-primary {
+  color: var(--lbc-primary);
+}
+
+.text-muted {
+  color: var(--lbc-muted);
+}
+
+.border-default {
+  border-color: var(--lbc-border);
+}
+
+/* ================================
+   Status Badge Styles
+   ================================ */
+
+.status-pending {
+  background-color: var(--status-pending-bg);
+  color: var(--status-pending);
+}
+
+.status-approved {
+  background-color: var(--status-approved-bg);
+  color: var(--status-approved);
+}
+
+.status-rejected {
+  background-color: var(--status-rejected-bg);
+  color: var(--status-rejected);
+}
+
+.status-cancelled {
+  background-color: var(--status-cancelled-bg);
+  color: var(--status-cancelled);
+}
+
+/* ================================
+   Button Styles
+   ================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--lbc-primary);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--lbc-primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--lbc-secondary);
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--lbc-secondary-hover);
+}
+
+.btn-accent {
+  background-color: var(--lbc-accent);
+  color: white;
+}
+
+.btn-accent:hover:not(:disabled) {
+  background-color: var(--lbc-accent-hover);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--lbc-border);
+  color: var(--lbc-text);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: var(--lbc-bg-secondary);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--lbc-text);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--lbc-bg-secondary);
+}
+
+.btn-danger {
+  background-color: var(--status-rejected);
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.btn-success {
+  background-color: var(--status-approved);
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+/* ================================
+   Card Styles
+   ================================ */
+
+.card {
+  background-color: var(--lbc-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--lbc-border);
+}
+
+.card-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--lbc-border);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--lbc-border);
+}
+
+/* ================================
+   Input Styles
+   ================================ */
+
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--lbc-border);
+  border-radius: var(--radius);
+  background-color: var(--lbc-card);
+  color: var(--lbc-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--lbc-primary);
+  box-shadow: 0 0 0 3px rgba(11, 124, 143, 0.1);
+}
+
+.input::placeholder {
+  color: var(--lbc-muted-light);
+}
+
+.input:disabled {
+  background-color: var(--lbc-bg-secondary);
+  cursor: not-allowed;
+}
+
+/* ================================
+   Table Styles
+   ================================ */
+
+.table-container {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lbc-muted);
+  background-color: var(--lbc-bg-secondary);
+  border-bottom: 1px solid var(--lbc-border);
+}
+
+.table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--lbc-border);
+}
+
+.table tbody tr:hover {
+  background-color: var(--lbc-card-hover);
+}
+
+/* ================================
+   FullCalendar Overrides
+   ================================ */
+
+.fc {
+  --fc-border-color: var(--lbc-border);
+  --fc-button-bg-color: var(--lbc-primary);
+  --fc-button-border-color: var(--lbc-primary);
+  --fc-button-hover-bg-color: var(--lbc-primary-hover);
+  --fc-button-hover-border-color: var(--lbc-primary-hover);
+  --fc-button-active-bg-color: var(--lbc-primary-hover);
+  --fc-button-active-border-color: var(--lbc-primary-hover);
+  --fc-today-bg-color: rgba(11, 124, 143, 0.1);
+  --fc-event-bg-color: var(--lbc-primary);
+  --fc-event-border-color: var(--lbc-primary);
+}
+
+.fc .fc-toolbar-title {
+  color: var(--lbc-text);
+  font-weight: 600;
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number {
+  color: var(--lbc-text);
+}
+
+.fc-event-pending {
+  background-color: var(--status-pending) !important;
+  border-color: var(--status-pending) !important;
+}
+
+.fc-event-approved {
+  background-color: var(--status-approved) !important;
+  border-color: var(--status-approved) !important;
+}
+
+.fc-event-rejected {
+  background-color: var(--status-rejected) !important;
+  border-color: var(--status-rejected) !important;
+}
+
+/* ================================
+   Scrollbar Styles
+   ================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--lbc-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lbc-muted-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--lbc-muted);
+}
+
+/* ================================
+   Animation Classes
+   ================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.2s ease-out;
+}
+
+/* ================================
+   Responsive Utilities
+   ================================ */
+
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
