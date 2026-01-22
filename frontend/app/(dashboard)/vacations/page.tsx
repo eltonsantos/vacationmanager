@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { vacationsApi, employeesApi } from '@/lib/api';
-import { VacationRequest, VacationRequestDto, VacationStatus, Role, Employee, ApiError } from '@/lib/types';
+import { vacationsApi, employeesApi, balancesApi } from '@/lib/api';
+import { VacationRequest, VacationRequestDto, VacationStatus, Role, Employee, ApiError, VacationBalance } from '@/lib/types';
 import Table from '@/components/ui/Table';
 import { Button } from '@/components/ui/button';
 import Modal from '@/components/ui/Modal';
@@ -31,9 +31,31 @@ export default function VacationsPage() {
   });
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [availableDays, setAvailableDays] = useState<number | null>(null);
 
   const canApprove = hasRole([Role.ADMIN, Role.MANAGER]);
   const isAdmin = hasRole(Role.ADMIN);
+
+  const calculateRequestedDays = (startDate: string, endDate: string): number => {
+    if (!startDate || !endDate) return 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = end.getTime() - start.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  };
+
+  const fetchBalance = async (employeeId: string) => {
+    if (!employeeId) {
+      setAvailableDays(null);
+      return;
+    }
+    try {
+      const balance = await balancesApi.getByEmployee(employeeId);
+      setAvailableDays(balance.remainingDays);
+    } catch {
+      setAvailableDays(null);
+    }
+  };
 
   const fetchVacations = async () => {
     setIsLoading(true);
@@ -64,14 +86,23 @@ export default function VacationsPage() {
     }
   }, [page]);
 
-  const handleOpenModal = () => {
+  const handleOpenModal = async () => {
+    // For non-admin users, use their own employeeId from the auth context
+    const employeeId = isAdmin ? (employees[0]?.id || '') : (user?.employeeId || '');
     setFormData({
-      employeeId: employees[0]?.id || '',
+      employeeId,
       startDate: '',
       endDate: '',
       reason: '',
     });
     setError('');
+    setAvailableDays(null);
+    
+    // Fetch balance for the selected employee
+    if (employeeId) {
+      await fetchBalance(employeeId);
+    }
+    
     setIsModalOpen(true);
   };
 
@@ -84,6 +115,14 @@ export default function VacationsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate balance before submitting
+    const requestedDays = calculateRequestedDays(formData.startDate, formData.endDate);
+    if (availableDays !== null && requestedDays > availableDays) {
+      setError(`Saldo de férias insuficiente. Você possui apenas ${availableDays} dias disponíveis, mas solicitou ${requestedDays} dias.`);
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -269,7 +308,10 @@ export default function VacationsPage() {
               <select
                 className="w-full px-3 py-2 text-sm border rounded-lg bg-[var(--lbc-card)] text-[var(--lbc-text)] border-[var(--lbc-border)]"
                 value={formData.employeeId}
-                onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, employeeId: e.target.value });
+                  fetchBalance(e.target.value);
+                }}
                 required
               >
                 <option value="">Selecione um colaborador</option>
@@ -279,6 +321,16 @@ export default function VacationsPage() {
                   </option>
                 ))}
               </select>
+            </div>
+          )}
+
+          {/* Balance info */}
+          {availableDays !== null && (
+            <div className="flex items-center gap-2 p-3 bg-[hsl(var(--primary))]/10 border border-[hsl(var(--primary))]/20 rounded-lg">
+              <Calendar className="h-5 w-5 text-[hsl(var(--primary))]" />
+              <span className="text-sm text-foreground">
+                Saldo disponível: <span className="font-semibold text-[hsl(var(--primary))]">{availableDays} dias</span>
+              </span>
             </div>
           )}
 
@@ -302,6 +354,22 @@ export default function VacationsPage() {
               />
             </div>
           </div>
+
+          {/* Requested days calculation */}
+          {formData.startDate && formData.endDate && (
+            <div className="text-sm text-muted-foreground">
+              Dias solicitados: <span className={`font-semibold ${
+                availableDays !== null && calculateRequestedDays(formData.startDate, formData.endDate) > availableDays 
+                  ? 'text-red-500' 
+                  : 'text-foreground'
+              }`}>
+                {calculateRequestedDays(formData.startDate, formData.endDate)} dias
+              </span>
+              {availableDays !== null && calculateRequestedDays(formData.startDate, formData.endDate) > availableDays && (
+                <span className="text-red-500 ml-2">(excede o saldo disponível)</span>
+              )}
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-[var(--lbc-text)] mb-1.5">

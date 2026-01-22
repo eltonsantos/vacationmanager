@@ -123,7 +123,8 @@ public class AuthService {
         UUID userId = getCurrentUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        return UserResponse.fromEntity(user);
+        Employee employee = employeeRepository.findByUserId(userId).orElse(null);
+        return UserResponse.fromEntity(user, employee);
     }
 
     @Transactional(readOnly = true)

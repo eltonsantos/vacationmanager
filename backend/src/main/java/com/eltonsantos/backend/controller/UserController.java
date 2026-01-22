@@ -5,6 +5,8 @@ import com.eltonsantos.backend.dto.request.UpdateUserRequest;
 import com.eltonsantos.backend.dto.response.PageResponse;
 import com.eltonsantos.backend.dto.response.UserResponse;
 import com.eltonsantos.backend.service.UserService;
+
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -33,6 +35,12 @@ public class UserController {
     public ResponseEntity<PageResponse<UserResponse>> findAll(
             @PageableDefault(size = 10, sort = "email", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(userService.findAll(pageable));
+    }
+
+    @GetMapping("/managers")
+    @Operation(summary = "List managers", description = "Get list of users with MANAGER role")
+    public ResponseEntity<List<UserResponse>> findManagers() {
+        return ResponseEntity.ok(userService.findManagers());
     }
 
     @GetMapping("/{id}")

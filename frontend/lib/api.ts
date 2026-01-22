@@ -265,7 +265,8 @@ export interface CreateUserRequest {
   email: string;
   password: string;
   role: 'ADMIN' | 'MANAGER' | 'COLLABORATOR';
-  fullName?: string;
+  fullName: string;
+  managerId?: string; // Required for COLLABORATOR role
 }
 
 export interface UpdateUserRequest {
@@ -279,6 +280,8 @@ export const usersApi = {
     apiFetch<PageResponse<User>>('/users', {
       params: { page, size },
     }),
+
+  listManagers: () => apiFetch<User[]>('/users/managers'),
 
   get: (id: string) => apiFetch<User>(`/users/${id}`),
 

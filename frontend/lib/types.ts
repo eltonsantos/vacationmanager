@@ -85,7 +85,6 @@ export interface VacationRequest {
   daysCount: number;
   status: VacationStatus;
   requestedAt: string;
-  createdAt: string;
   decisionAt: string | null;
   decidedByUserId: string | null;
   decidedByEmail: string | null;

@@ -83,7 +83,7 @@ export function RecentRequests({ requests, onView, onApprove, onReject }: Recent
                   <div>
                     <p className="text-sm font-medium text-foreground">{request.employeeName}</p>
                     <p className="text-xs text-muted-foreground">
-                      Solicitado em {formatDate(request.createdAt)}
+                      Solicitado em {formatDate(request.requestedAt)}
                     </p>
                   </div>
                 </td>

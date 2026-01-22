@@ -17,6 +17,7 @@ interface UserFormData {
   password: string;
   role: 'ADMIN' | 'MANAGER' | 'COLLABORATOR';
   fullName: string;
+  managerId: string;
 }
 
 const initialFormData: UserFormData = {
@@ -24,6 +25,7 @@ const initialFormData: UserFormData = {
   password: '',
   role: 'COLLABORATOR',
   fullName: '',
+  managerId: '',
 };
 
 export default function UsersPage() {
@@ -31,6 +33,7 @@ export default function UsersPage() {
   const router = useRouter();
   
   const [users, setUsers] = useState<User[]>([]);
+  const [managers, setManagers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -65,19 +68,30 @@ export default function UsersPage() {
     loadUsers();
   }, [hasRole, router, loadUsers]);
 
-  const openCreateModal = () => {
+  const loadManagers = useCallback(async () => {
+    try {
+      const managerList = await usersApi.listManagers();
+      setManagers(managerList);
+    } catch {
+      console.error('Erro ao carregar gestores');
+    }
+  }, []);
+
+  const openCreateModal = async () => {
     setEditingUser(null);
     setFormData(initialFormData);
     setShowModal(true);
     setError('');
+    await loadManagers();
   };
 
-  const openEditModal = (user: User) => {
+  const openEditModal = async (user: User) => {
     setEditingUser(user);
     setFormData({
       email: user.email,
       password: '',
       role: user.role,
+      managerId: '',
       fullName: '',
     });
     setShowModal(true);
@@ -109,11 +123,19 @@ export default function UsersPage() {
         await usersApi.update(editingUser.id, updateData);
         setSuccess('Usuário atualizado com sucesso!');
       } else {
+        // Validate: COLLABORATOR must have a manager
+        if (formData.role === 'COLLABORATOR' && !formData.managerId) {
+          setError('Colaboradores devem ser associados a um gestor');
+          setSubmitting(false);
+          return;
+        }
+        
         const createData: CreateUserRequest = {
           email: formData.email,
           password: formData.password,
           role: formData.role,
-          fullName: formData.fullName || undefined,
+          fullName: formData.fullName,
+          managerId: formData.role === 'COLLABORATOR' ? formData.managerId : undefined,
         };
         await usersApi.create(createData);
         setSuccess('Usuário criado com sucesso!');
@@ -200,13 +222,13 @@ export default function UsersPage() {
 
       {/* Messages */}
       {success && (
-        <div className="p-4 rounded-lg bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800">
-          <p className="text-sm text-green-700 dark:text-green-400">{success}</p>
+        <div className="p-4 rounded-lg bg-green-100 dark:bg-green-100 border border-green-200 dark:border-green-800">
+          <p className="text-sm text-green-700 dark:text-green-700">{success}</p>
         </div>
       )}
       {error && (
-        <div className="p-4 rounded-lg bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
-          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+        <div className="p-4 rounded-lg bg-red-100 dark:bg-red-100 border border-red-200 dark:border-red-800">
+          <p className="text-sm text-red-700 dark:text-red-700">{error}</p>
         </div>
       )}
 
@@ -302,16 +324,14 @@ export default function UsersPage() {
               {!editingUser && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">
-                    Nome Completo
+                    Nome Completo *
                   </label>
                   <Input
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    placeholder="Nome do colaborador"
+                    placeholder="Nome do usuário"
+                    required
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Opcional. Se preenchido, cria um colaborador associado.
-                  </p>
                 </div>
               )}
 
@@ -379,6 +399,34 @@ export default function UsersPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Manager selector - only for COLLABORATOR role when creating */}
+              {!editingUser && formData.role === 'COLLABORATOR' && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Gestor Responsável *
+                  </label>
+                  {managers.length === 0 ? (
+                    <p className="text-sm text-yellow-600 dark:text-yellow-700 p-3 bg-blue-50 dark:bg-yellow-100 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                      Nenhum gestor disponível. Crie um usuário com role Manager primeiro.
+                    </p>
+                  ) : (
+                    <select
+                      value={formData.managerId}
+                      onChange={(e) => setFormData({ ...formData, managerId: e.target.value })}
+                      className="w-full h-10 px-3 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-foreground focus:outline-none focus:ring-2 focus:ring-[hsl(var(--ring))]"
+                      required
+                    >
+                      <option value="">Selecione um gestor...</option>
+                      {managers.map((manager) => (
+                        <option key={manager.id} value={manager.id}>
+                          {manager.email}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              )}
 
               <div className="flex gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={closeModal} className="flex-1">

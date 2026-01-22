@@ -7,6 +7,7 @@ import com.eltonsantos.backend.dto.response.UserResponse;
 import com.eltonsantos.backend.entity.Employee;
 import com.eltonsantos.backend.entity.User;
 import com.eltonsantos.backend.entity.VacationBalance;
+import com.eltonsantos.backend.enums.Role;
 import com.eltonsantos.backend.exception.BusinessException;
 import com.eltonsantos.backend.exception.ResourceNotFoundException;
 import com.eltonsantos.backend.repository.EmployeeRepository;
@@ -15,6 +16,8 @@ import com.eltonsantos.backend.repository.VacationBalanceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,11 +49,33 @@ public class UserService {
         return UserResponse.fromEntity(user);
     }
 
+    @Transactional(readOnly = true)
+    public List<UserResponse> findManagers() {
+        return userRepository.findByRole(Role.MANAGER).stream()
+                .map(UserResponse::fromEntity)
+                .toList();
+    }
+
     @Transactional
     public UserResponse create(CreateUserRequest request) {
         // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new BusinessException("Email já está em uso");
+        }
+
+        // Validate: COLLABORATOR must have a manager
+        if (request.getRole() == Role.COLLABORATOR && request.getManagerId() == null) {
+            throw new BusinessException("Colaboradores devem ser associados a um gestor");
+        }
+
+        // Validate manager exists and has MANAGER role
+        User manager = null;
+        if (request.getManagerId() != null) {
+            manager = userRepository.findById(request.getManagerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Manager", "id", request.getManagerId()));
+            if (manager.getRole() != Role.MANAGER && manager.getRole() != Role.ADMIN) {
+                throw new BusinessException("O usuário selecionado não é um gestor");
+            }
         }
 
         // Create user
@@ -61,12 +86,13 @@ public class UserService {
                 .build();
         user = userRepository.save(user);
 
-        // Create employee if fullName is provided
-        if (request.getFullName() != null && !request.getFullName().isBlank()) {
+        // Create employee for MANAGER and COLLABORATOR roles
+        if (request.getRole() != Role.ADMIN) {
             Employee employee = Employee.builder()
                     .fullName(request.getFullName())
                     .email(request.getEmail())
                     .user(user)
+                    .manager(manager) // Associate with manager (null for MANAGER role)
                     .active(true)
                     .build();
             employee = employeeRepository.save(employee);

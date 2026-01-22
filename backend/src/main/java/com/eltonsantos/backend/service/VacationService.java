@@ -74,6 +74,10 @@ public class VacationService {
 
         validateCreateAccess(employee);
 
+        // Validate vacation balance
+        int requestedDays = calculateDays(request.startDate(), request.endDate());
+        validateBalance(employee.getId(), request.startDate().getYear(), requestedDays);
+
         // Check for overlapping vacations
         checkOverlap(request.startDate(), request.endDate(), null);
 
@@ -165,6 +169,10 @@ public class VacationService {
         // Re-validate overlap before approving (race condition protection)
         checkOverlap(vacation.getStartDate(), vacation.getEndDate(), vacation.getId());
 
+        // Validate balance before approving
+        int days = calculateDays(vacation.getStartDate(), vacation.getEndDate());
+        validateBalance(vacation.getEmployee().getId(), vacation.getStartDate().getYear(), days);
+
         User currentUser = authService.getCurrentUserEntity();
 
         vacation.setStatus(VacationStatus.APPROVED);
@@ -174,8 +182,7 @@ public class VacationService {
 
         vacation = vacationRequestRepository.save(vacation);
 
-        // Deduct from balance
-        int days = (int) vacation.getDaysCount();
+        // Deduct from balance (days already calculated above)
         balanceService.deductDays(
                 vacation.getEmployee().getId(),
                 vacation.getStartDate().getYear(),
@@ -237,12 +244,18 @@ public class VacationService {
 
         if (!overlapping.isEmpty()) {
             VacationRequest conflict = overlapping.get(0);
+            String statusPt = switch (conflict.getStatus()) {
+                case PENDING -> "Pendente";
+                case APPROVED -> "Aprovado";
+                case REJECTED -> "Rejeitado";
+                case CANCELLED -> "Cancelado";
+            };
             String message = String.format(
-                    "Vacation dates overlap with existing request from %s (%s to %s, status: %s)",
+                    "As datas solicitadas conflitam com férias já existentes de %s (de %s até %s, status: %s)",
                     conflict.getEmployee().getFullName(),
                     conflict.getStartDate(),
                     conflict.getEndDate(),
-                    conflict.getStatus()
+                    statusPt
             );
             log.warn("Overlap detected: {}", message);
             throw new VacationOverlapException(message);
@@ -342,5 +355,21 @@ public class VacationService {
         }
 
         throw new UnauthorizedException("Only Admin and Manager can approve/reject vacation requests");
+    }
+
+    private int calculateDays(LocalDate startDate, LocalDate endDate) {
+        return (int) (endDate.toEpochDay() - startDate.toEpochDay()) + 1;
+    }
+
+    private void validateBalance(UUID employeeId, int year, int requestedDays) {
+        var balance = balanceService.getOrCreateBalance(employeeId, year);
+        int remainingDays = balance.getRemainingDays();
+        
+        if (requestedDays > remainingDays) {
+            throw new BusinessException(
+                String.format("Saldo de férias insuficiente. Você possui apenas %d dias disponíveis, mas solicitou %d dias.", 
+                    remainingDays, requestedDays)
+            );
+        }
     }
 }
