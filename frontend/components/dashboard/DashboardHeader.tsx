@@ -4,20 +4,14 @@ import { useState } from "react";
 import { Menu, Search, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
-import { useAuth } from "@/contexts/AuthContext";
+import { UserDropdown } from "./UserDropdown";
 
 interface DashboardHeaderProps {
   onMenuClick: () => void;
 }
 
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
-  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-
-  const getInitials = (email: string) => {
-    const name = email.split("@")[0];
-    return name.substring(0, 2).toUpperCase();
-  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card px-4 lg:px-6">
@@ -61,10 +55,8 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           </span>
         </Button>
 
-        {/* User Avatar */}
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground">
-          {user ? getInitials(user.email) : "??"}
-        </div>
+        {/* User Dropdown */}
+        <UserDropdown />
       </div>
     </header>
   );

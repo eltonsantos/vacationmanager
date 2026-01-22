@@ -1,8 +1,11 @@
 package com.eltonsantos.backend.service;
 
+import com.eltonsantos.backend.dto.request.ChangePasswordRequest;
 import com.eltonsantos.backend.dto.request.LoginRequest;
 import com.eltonsantos.backend.dto.request.SignUpRequest;
+import com.eltonsantos.backend.dto.request.UpdateProfileRequest;
 import com.eltonsantos.backend.dto.response.AuthResponse;
+import com.eltonsantos.backend.dto.response.ProfileResponse;
 import com.eltonsantos.backend.dto.response.UserResponse;
 import com.eltonsantos.backend.entity.Employee;
 import com.eltonsantos.backend.entity.User;
@@ -123,6 +126,13 @@ public class AuthService {
         return UserResponse.fromEntity(user);
     }
 
+    @Transactional(readOnly = true)
+    public ProfileResponse getProfile() {
+        User user = getCurrentUserEntity();
+        Employee employee = employeeRepository.findByUserId(user.getId()).orElse(null);
+        return ProfileResponse.fromEntities(user, employee);
+    }
+
     public UUID getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
@@ -143,5 +153,35 @@ public class AuthService {
             return userDetails;
         }
         throw new ResourceNotFoundException("Current user not found");
+    }
+
+    @Transactional
+    public ProfileResponse updateProfile(UpdateProfileRequest request) {
+        User user = getCurrentUserEntity();
+        
+        // Find and update the associated employee
+        Employee employee = employeeRepository.findByUserId(user.getId())
+                .orElse(null);
+        
+        if (employee != null) {
+            employee.setFullName(request.getFullName());
+            employeeRepository.save(employee);
+        }
+        
+        return ProfileResponse.fromEntities(user, employee);
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        User user = getCurrentUserEntity();
+        
+        // Verify current password
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+            throw new BusinessException("Senha atual incorreta");
+        }
+        
+        // Update password
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 }

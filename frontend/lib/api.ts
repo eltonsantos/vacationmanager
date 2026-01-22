@@ -132,6 +132,20 @@ export const authApi = {
     }),
 
   me: () => apiFetch<User>('/auth/me'),
+
+  getProfile: () => apiFetch<{ id: string; email: string; role: string; fullName: string }>('/auth/profile'),
+
+  updateProfile: (data: { fullName: string }) =>
+    apiFetch<{ id: string; email: string; role: string; fullName: string }>('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    apiFetch<void>('/auth/me/password', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
 };
 
 // ================================
@@ -240,5 +254,48 @@ export const auditApi = {
   listByEntityType: (entityType: string, page = 0, size = 20) =>
     apiFetch<PageResponse<AuditLog>>(`/audit-logs/entity/${entityType}`, {
       params: { page, size },
+    }),
+};
+
+// ================================
+// Users API (Admin only)
+// ================================
+
+export interface CreateUserRequest {
+  email: string;
+  password: string;
+  role: 'ADMIN' | 'MANAGER' | 'COLLABORATOR';
+  fullName?: string;
+}
+
+export interface UpdateUserRequest {
+  email: string;
+  password?: string;
+  role: 'ADMIN' | 'MANAGER' | 'COLLABORATOR';
+}
+
+export const usersApi = {
+  list: (page = 0, size = 10) =>
+    apiFetch<PageResponse<User>>('/users', {
+      params: { page, size },
+    }),
+
+  get: (id: string) => apiFetch<User>(`/users/${id}`),
+
+  create: (data: CreateUserRequest) =>
+    apiFetch<User>('/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id: string, data: UpdateUserRequest) =>
+    apiFetch<User>(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: string) =>
+    apiFetch<void>(`/users/${id}`, {
+      method: 'DELETE',
     }),
 };

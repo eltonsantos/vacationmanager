@@ -14,6 +14,7 @@ import {
   LogOut,
   HelpCircle,
   X,
+  UserCog,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ const mainNavItems: NavItem[] = [
   { title: "Dashboard", href: "/", icon: Home },
   { title: "Solicitações", href: "/vacations", icon: ClipboardList, badge: 3 },
   { title: "Colaboradores", href: "/employees", icon: Users, roles: [Role.ADMIN, Role.MANAGER] },
+  { title: "Usuários", href: "/users", icon: UserCog, roles: [Role.ADMIN] },
   { title: "Calendário", href: "/calendar", icon: Calendar },
 ];
 
@@ -130,7 +132,7 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
       <aside
         className={cn(
           "fixed top-0 left-0 z-50 h-screen flex flex-col border-r border-border bg-card transition-all duration-300",
-          "lg:static lg:z-auto",
+          "lg:sticky lg:top-0 lg:z-auto lg:self-start",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           isCollapsed ? "w-16" : "w-64"
         )}
@@ -180,8 +182,8 @@ export function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
           </ul>
         </nav>
 
-        {/* Secondary Navigation */}
-        <div className="border-t border-border p-3">
+        {/* Secondary Navigation - Fixed at bottom */}
+        <div className="mt-auto border-t border-border p-3">
           <nav>
             <ul className="space-y-1">
               {filteredSecondaryNav.map((item) => (

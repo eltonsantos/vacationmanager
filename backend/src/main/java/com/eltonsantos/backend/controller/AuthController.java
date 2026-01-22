@@ -1,8 +1,11 @@
 package com.eltonsantos.backend.controller;
 
+import com.eltonsantos.backend.dto.request.ChangePasswordRequest;
 import com.eltonsantos.backend.dto.request.LoginRequest;
 import com.eltonsantos.backend.dto.request.SignUpRequest;
+import com.eltonsantos.backend.dto.request.UpdateProfileRequest;
 import com.eltonsantos.backend.dto.response.AuthResponse;
+import com.eltonsantos.backend.dto.response.ProfileResponse;
 import com.eltonsantos.backend.dto.response.UserResponse;
 import com.eltonsantos.backend.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,5 +40,24 @@ public class AuthController {
     @Operation(summary = "Get current user", description = "Get authenticated user information")
     public ResponseEntity<UserResponse> me() {
         return ResponseEntity.ok(authService.getCurrentUser());
+    }
+
+    @GetMapping("/profile")
+    @Operation(summary = "Get profile", description = "Get current user's profile with employee info")
+    public ResponseEntity<ProfileResponse> getProfile() {
+        return ResponseEntity.ok(authService.getProfile());
+    }
+
+    @PutMapping("/profile")
+    @Operation(summary = "Update profile", description = "Update current user's name")
+    public ResponseEntity<ProfileResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
+        return ResponseEntity.ok(authService.updateProfile(request));
+    }
+
+    @PutMapping("/me/password")
+    @Operation(summary = "Change password", description = "Change current user's password")
+    public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(request);
+        return ResponseEntity.noContent().build();
     }
 }
