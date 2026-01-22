@@ -28,7 +28,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        log.info("Checking and updating user passwords...");
+        log.info("Checking and updating admin password...");
 
         updateOrCreateUser(
             UUID.fromString("11111111-1111-1111-1111-111111111111"),
@@ -37,21 +37,7 @@ public class DataInitializer implements CommandLineRunner {
             Role.ADMIN
         );
 
-        updateOrCreateUser(
-            UUID.fromString("22222222-2222-2222-2222-222222222222"),
-            "manager@lbc.local",
-            "Manager123!",
-            Role.MANAGER
-        );
-
-        updateOrCreateUser(
-            UUID.fromString("33333333-3333-3333-3333-333333333333"),
-            "collab@lbc.local",
-            "Collab123!",
-            Role.COLLABORATOR
-        );
-
-        log.info("User passwords updated successfully.");
+        log.info("Admin user verified.");
     }
 
     private void updateOrCreateUser(UUID id, String email, String password, Role role) {
@@ -59,7 +45,6 @@ public class DataInitializer implements CommandLineRunner {
 
         userRepository.findById(id).ifPresentOrElse(
             user -> {
-                // Update password if needed
                 if (!passwordEncoder.matches(password, user.getPasswordHash())) {
                     user.setPasswordHash(encodedPassword);
                     userRepository.save(user);
@@ -67,7 +52,6 @@ public class DataInitializer implements CommandLineRunner {
                 }
             },
             () -> {
-                // Create new user if not exists
                 User user = User.builder()
                     .id(id)
                     .email(email)

@@ -42,7 +42,7 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
       {/* Right Side */}
       <div className="flex items-center gap-3">
-        {/* Notifications */}
+        {/* Notifications - Badge hidden until feature is implemented */}
         <Button
           variant="ghost"
           size="icon"
@@ -50,9 +50,11 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           aria-label="Notificações"
         >
           <Bell className="h-5 w-5" />
+          {/* TODO: Implement notification count
           <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
             2
           </span>
+          */}
         </Button>
 
         {/* User Dropdown */}

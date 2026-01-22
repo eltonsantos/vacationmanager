@@ -37,7 +37,7 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { title: "Dashboard", href: "/", icon: Home },
-  { title: "Solicitações", href: "/vacations", icon: ClipboardList, badge: 3 },
+  { title: "Solicitações", href: "/vacations", icon: ClipboardList }, // TODO: Add dynamic badge count
   { title: "Colaboradores", href: "/employees", icon: Users, roles: [Role.ADMIN, Role.MANAGER] },
   { title: "Usuários", href: "/users", icon: UserCog, roles: [Role.ADMIN] },
   { title: "Calendário", href: "/calendar", icon: Calendar },
