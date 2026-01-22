@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, Search, Bell } from "lucide-react";
+import { Menu, Search, Bell, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { UserDropdown } from "./UserDropdown";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface DashboardHeaderProps {
   onMenuClick: () => void;
@@ -12,6 +13,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-card px-4 lg:px-6">
@@ -42,6 +44,20 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
       {/* Right Side */}
       <div className="flex items-center gap-3">
+        {/* Theme Toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          aria-label={theme === "light" ? "Ativar modo escuro" : "Ativar modo claro"}
+        >
+          {theme === "light" ? (
+            <Moon className="h-5 w-5" />
+          ) : (
+            <Sun className="h-5 w-5" />
+          )}
+        </Button>
+
         {/* Notifications - Badge hidden until feature is implemented */}
         <Button
           variant="ghost"
