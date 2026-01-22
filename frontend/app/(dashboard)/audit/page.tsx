@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation';
 import { auditApi } from '@/lib/api';
 import { AuditLog, Role } from '@/lib/types';
 import Table from '@/components/ui/Table';
-import { ClipboardList, User, Calendar } from 'lucide-react';
+import Modal from '@/components/ui/Modal';
+import { Button } from '@/components/ui/button';
+import { ClipboardList, User, Calendar, Eye } from 'lucide-react';
 
 const actionLabels: Record<string, string> = {
   CREATE_EMPLOYEE: 'Criou colaborador',
@@ -26,6 +28,13 @@ export default function AuditPage() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewDetails = (log: AuditLog) => {
+    setSelectedLog(log);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     if (!hasRole(Role.ADMIN)) {
@@ -36,7 +45,7 @@ export default function AuditPage() {
     const fetchLogs = async () => {
       setIsLoading(true);
       try {
-        const response = await auditApi.list(page, 20);
+        const response = await auditApi.list(page, 10);
         setLogs(response.content);
         setTotalPages(response.totalPages);
       } catch (error) {
@@ -101,6 +110,20 @@ export default function AuditPage() {
         </div>
       ),
     },
+    {
+      key: 'actions',
+      header: 'Ações',
+      render: (log: AuditLog) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleViewDetails(log)}
+          aria-label="Ver detalhes"
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+      ),
+    },
   ];
 
   if (!hasRole(Role.ADMIN)) {
@@ -139,6 +162,51 @@ export default function AuditPage() {
           }}
         />
       </div>
+
+      {/* Details Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Detalhes do Registo"
+        size="lg"
+      >
+        {selectedLog && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-[var(--lbc-muted)]">Data/Hora</p>
+                <p className="font-medium text-[var(--lbc-text)]">
+                  {new Date(selectedLog.createdAt).toLocaleString('pt-PT')}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-[var(--lbc-muted)]">Utilizador</p>
+                <p className="font-medium text-[var(--lbc-text)]">{selectedLog.actorEmail}</p>
+              </div>
+              <div>
+                <p className="text-sm text-[var(--lbc-muted)]">Ação</p>
+                <p className="font-medium text-[var(--lbc-text)]">
+                  {actionLabels[selectedLog.action] || selectedLog.action}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-[var(--lbc-muted)]">Entidade</p>
+                <span className="px-2 py-1 rounded bg-[var(--lbc-bg-secondary)] text-xs font-medium">
+                  {selectedLog.entityType}
+                </span>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-[var(--lbc-muted)] mb-2">Detalhes Completos</p>
+              <pre className="p-4 rounded-lg bg-[var(--lbc-bg-secondary)] text-sm overflow-auto max-h-64">
+                {selectedLog.metadata
+                  ? JSON.stringify(selectedLog.metadata, null, 2)
+                  : 'Sem detalhes adicionais'}
+              </pre>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

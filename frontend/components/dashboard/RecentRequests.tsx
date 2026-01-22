@@ -1,20 +1,27 @@
 "use client";
 
-import { Eye, Check, X } from "lucide-react";
+import { Eye, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VacationRequest, VacationStatus, Role } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 
+interface PaginationProps {
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
+
 interface RecentRequestsProps {
   requests: VacationRequest[];
   onView?: (request: VacationRequest) => void;
   onApprove?: (request: VacationRequest) => void;
   onReject?: (request: VacationRequest) => void;
+  pagination?: PaginationProps;
 }
 
-export function RecentRequests({ requests, onView, onApprove, onReject }: RecentRequestsProps) {
+export function RecentRequests({ requests, onView, onApprove, onReject, pagination }: RecentRequestsProps) {
   const { hasRole } = useAuth();
   const canManage = hasRole([Role.ADMIN, Role.MANAGER]);
 
@@ -139,6 +146,35 @@ export function RecentRequests({ requests, onView, onApprove, onReject }: Recent
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between px-5 py-4 border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            Página {pagination.page + 1} de {pagination.totalPages}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.page - 1)}
+              disabled={pagination.page === 0}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => pagination.onPageChange(pagination.page + 1)}
+              disabled={pagination.page >= pagination.totalPages - 1}
+            >
+              Próxima
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

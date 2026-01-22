@@ -225,7 +225,7 @@ public class VacationService {
 
     @Transactional(readOnly = true)
     public List<VacationResponse> findAllForCalendar(LocalDate startDate, LocalDate endDate) {
-        List<VacationRequest> vacations = vacationRequestRepository.findApprovedInPeriod(startDate, endDate);
+        List<VacationRequest> vacations = vacationRequestRepository.findForCalendar(startDate, endDate);
         return vacations.stream()
                 .map(VacationResponse::fromEntity)
                 .toList();
@@ -342,12 +342,17 @@ public class VacationService {
     private void validateApprovalAccess(VacationRequest vacation) {
         CustomUserDetails currentUser = authService.getCurrentUserDetails();
 
+        // Block self-approval - no one can approve their own vacation (except handled by admin)
+        Employee employee = vacation.getEmployee();
+        if (employee.getUser() != null && employee.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedException("You cannot approve your own vacation request");
+        }
+
         if (currentUser.getRole() == Role.ADMIN) {
             return;
         }
 
         if (currentUser.getRole() == Role.MANAGER) {
-            Employee employee = vacation.getEmployee();
             if (employee.getManager() != null && employee.getManager().getId().equals(currentUser.getId())) {
                 return;
             }

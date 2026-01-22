@@ -43,7 +43,7 @@ export function AuthLayout({ children, title, subtitle, altLink }: AuthLayoutPro
           </div>
 
           {/* Alt Link */}
-          <p className="mt-8 text-center text-sm text-muted-foreground">
+          <p className="hidden mt-8 text-center text-sm text-muted-foreground">
             {altLink.text}{" "}
             <Link
               href={altLink.href}

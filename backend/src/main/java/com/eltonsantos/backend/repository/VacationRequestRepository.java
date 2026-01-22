@@ -58,6 +58,13 @@ public interface VacationRequestRepository extends JpaRepository<VacationRequest
             @Param("endDate") LocalDate endDate);
 
     @Query("SELECT vr FROM VacationRequest vr WHERE " +
+           "vr.status IN ('PENDING', 'APPROVED') AND " +
+           "vr.startDate <= :endDate AND vr.endDate >= :startDate")
+    List<VacationRequest> findForCalendar(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT vr FROM VacationRequest vr WHERE " +
            "vr.employee.id = :employeeId AND " +
            "vr.status = 'APPROVED' AND " +
            "YEAR(vr.startDate) = :year")

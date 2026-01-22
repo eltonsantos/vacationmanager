@@ -7,6 +7,8 @@ import { RecentRequests } from "@/components/dashboard/RecentRequests";
 import { useAuth } from "@/contexts/AuthContext";
 import { vacationsApi, employeesApi, balancesApi } from "@/lib/api";
 import { VacationRequest, VacationStatus, Role } from "@/lib/types";
+import Modal from "@/components/ui/Modal";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 export default function DashboardPage() {
   const { user, hasRole } = useAuth();
@@ -18,13 +20,23 @@ export default function DashboardPage() {
     myBalance: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [selectedRequest, setSelectedRequest] = useState<VacationRequest | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const handleView = (request: VacationRequest) => {
+    setSelectedRequest(request);
+    setIsViewModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch vacation requests
-        const vacationsResponse = await vacationsApi.list(0, 10);
+        // Fetch vacation requests with pagination
+        const vacationsResponse = await vacationsApi.list(page, 10);
         setRequests(vacationsResponse.content);
+        setTotalPages(vacationsResponse.totalPages);
 
         // Count pending and approved
         const allVacations = await vacationsApi.list(0, 100);
@@ -67,7 +79,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [user, hasRole]);
+  }, [user, hasRole, page]);
 
   const handleApprove = async (request: VacationRequest) => {
     try {
@@ -139,13 +151,15 @@ export default function DashboardPage() {
             icon={CheckCircle}
             variant="success"
           />
-          <StatCard
-            title="Meu Saldo"
-            value={`${stats.myBalance} dias`}
-            description="Disponível para uso"
-            icon={CalendarDays}
-            variant="default"
-          />
+          {!hasRole(Role.ADMIN) && (
+            <StatCard
+              title="Meu Saldo"
+              value={`${stats.myBalance} dias`}
+              description="Disponível para uso"
+              icon={CalendarDays}
+              variant="default"
+            />
+          )}
         </div>
       </section>
 
@@ -153,10 +167,74 @@ export default function DashboardPage() {
       <section>
         <RecentRequests
           requests={requests}
+          onView={handleView}
           onApprove={handleApprove}
           onReject={handleReject}
+          pagination={{
+            page,
+            totalPages,
+            onPageChange: setPage,
+          }}
         />
       </section>
+
+      {/* View Details Modal */}
+      <Modal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        title="Detalhes da Solicitação"
+        size="lg"
+      >
+        {selectedRequest && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Colaborador</p>
+                <p className="font-medium text-foreground">{selectedRequest.employeeName}</p>
+                <p className="text-xs text-muted-foreground">{selectedRequest.employeeEmail}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Status</p>
+                <StatusBadge status={selectedRequest.status} />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Data de Início</p>
+                <p className="font-medium text-foreground">
+                  {new Date(selectedRequest.startDate).toLocaleDateString('pt-BR')}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Data de Fim</p>
+                <p className="font-medium text-foreground">
+                  {new Date(selectedRequest.endDate).toLocaleDateString('pt-BR')}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total de Dias</p>
+                <p className="font-medium text-foreground">{selectedRequest.daysCount} dias</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Solicitado em</p>
+                <p className="font-medium text-foreground">
+                  {new Date(selectedRequest.requestedAt).toLocaleDateString('pt-BR')}
+                </p>
+              </div>
+            </div>
+            {selectedRequest.reason && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Motivo</p>
+                <p className="text-foreground bg-muted/50 p-3 rounded-lg">{selectedRequest.reason}</p>
+              </div>
+            )}
+            {selectedRequest.managerComment && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Comentário do Gestor</p>
+                <p className="text-foreground bg-muted/50 p-3 rounded-lg">{selectedRequest.managerComment}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

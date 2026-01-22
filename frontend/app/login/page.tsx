@@ -91,7 +91,7 @@ export default function LoginPage() {
             </Label>
             <Link
               href="#"
-              className="text-sm text-primary hover:text-primary/80"
+              className="hidden text-sm text-primary hover:text-primary/80"
             >
               Esqueceu a senha?
             </Link>

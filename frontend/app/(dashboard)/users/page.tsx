@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
 import { 
   UserCog, Plus, Pencil, Trash2, X, Loader2, 
-  Shield, Users, User as UserIcon, Eye, EyeOff 
+  Shield, Users, User as UserIcon, Eye, EyeOff,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 interface UserFormData {
@@ -48,17 +49,22 @@ export default function UsersPage() {
   // Delete confirmation
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await usersApi.list(0, 100);
+      const response = await usersApi.list(page, 10);
       setUsers(response.content);
+      setTotalPages(response.totalPages);
     } catch {
       setError('Erro ao carregar usuários');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page]);
 
   useEffect(() => {
     if (!hasRole(Role.ADMIN)) {
@@ -303,6 +309,35 @@ export default function UsersPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t border-[hsl(var(--border))]">
+                <p className="text-sm text-muted-foreground">
+                  Página {page + 1} de {totalPages}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(page - 1)}
+                    disabled={page === 0}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Anterior
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(page + 1)}
+                    disabled={page >= totalPages - 1}
+                  >
+                    Próxima
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
