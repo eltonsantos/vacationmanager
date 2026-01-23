@@ -34,10 +34,12 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Buscar..."
+            placeholder="Busca em desenvolvimento..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-background"
+            className="pl-10 bg-background opacity-60 cursor-not-allowed"
+            disabled
+            title="Funcionalidade em desenvolvimento"
           />
         </div>
       </div>

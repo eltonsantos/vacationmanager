@@ -1,330 +1,250 @@
 # VacationManager
 
-Sistema de Gestão de Férias - Full Stack Application
+Sistema para gestão de férias de colaboradores.
 
-## Descrição
+## Sobre o Projeto
 
-O **VacationManager** é uma aplicação full-stack para gestão de colaboradores e pedidos de férias, desenvolvida como desafio técnico. O sistema implementa controle de acesso por roles, validações de negócio rigorosas e bloqueio total de férias sobrepostas.
+O **VacationManager** como um sistema real de gestão de férias, pensando em resolver os problemas que empresas enfrentam no dia a dia: controle de quem está de férias, evitar conflitos de datas, e dar visibilidade para gestores e colaboradores.
 
-## Tecnologias
+O sistema foi construído do zero, desde o modelo de dados até a interface, com foco em usabilidade e regras de negócio bem definidas.
+
+## O que o sistema faz
+
+### Para Administradores
+- Cadastro e gestão de usuários e colaboradores
+- Visualização de todas as solicitações de férias da empresa
+- Aprovação/rejeição de qualquer pedido
+- Acesso aos logs de auditoria (quem fez o que e quando)
+- Dashboard com métricas gerais
+
+### Para Gestores
+- Visualização dos colaboradores do seu time
+- Aprovação/rejeição de férias do time
+- Calendário integrado mostrando férias aprovadas
+- Solicitação das próprias férias
+
+### Para Colaboradores
+- Solicitação de férias com seleção de datas
+- Acompanhamento do status dos pedidos
+- Visualização do saldo de dias disponíveis
+- Calendário com férias da equipe
+
+### Regras de Negócio Implementadas
+
+O sistema impede automaticamente:
+- **Sobreposição de férias** - não é possível aprovar férias que conflitem com outras já existentes
+- **Auto-aprovação** - ninguém pode aprovar as próprias férias
+- **Saldo negativo** - solicitações são validadas contra o saldo disponível
+- **Edição de pedidos aprovados** - apenas pedidos pendentes podem ser alterados
+
+## Stack Utilizada
 
 ### Backend
-- **Java 17**
-- **Spring Boot 3.4.x**
-- **Spring Security** + JWT
-- **Spring Data JPA** (Hibernate)
-- **Spring Validation**
-- **PostgreSQL 15**
-- **Flyway** (Migrações)
-- **Springdoc OpenAPI** (Swagger)
-- **Lombok**
+- **Java 17** com **Spring Boot 3.4**
+- **Spring Security** com autenticação JWT
+- **Spring Data JPA** para persistência
+- **PostgreSQL** como banco de dados
+- **Flyway** para migrations
+- **Springdoc OpenAPI** para documentação da API
 
 ### Frontend
-- **Next.js 16** (App Router)
-- **React 19**
-- **TypeScript**
-- **TailwindCSS 4**
-- **FullCalendar**
-- **Lucide React** (Ícones)
-- **Headless UI**
+- **Next.js 16** com App Router
+- **React 19** com TypeScript
+- **TailwindCSS 4** para estilização
+- **FullCalendar** para visualização de férias
 
-## Arquitetura
+## Como Rodar o Projeto
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Frontend (Next.js)                       │
-│  ┌─────────┐  ┌─────────────┐  ┌────────┐  ┌──────────────┐    │
-│  │  Login  │  │  Dashboard  │  │ Férias │  │  Calendário  │    │
-│  └─────────┘  └─────────────┘  └────────┘  └──────────────┘    │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │ HTTP/REST + JWT
-┌───────────────────────────▼─────────────────────────────────────┐
-│                       Backend (Spring Boot)                      │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │                    Security Filter (JWT)                  │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│  ┌─────────┐  ┌────────────┐  ┌──────────┐  ┌────────────┐     │
-│  │  Auth   │  │ Employees  │  │ Vacations│  │   Audit    │     │
-│  │Controller│ │ Controller │  │Controller│  │ Controller │     │
-│  └────┬────┘  └─────┬──────┘  └────┬─────┘  └─────┬──────┘     │
-│       │             │              │              │             │
-│  ┌────▼────┐  ┌─────▼──────┐  ┌────▼─────┐  ┌─────▼──────┐     │
-│  │  Auth   │  │  Employee  │  │ Vacation │  │   Audit    │     │
-│  │ Service │  │  Service   │  │ Service  │  │  Service   │     │
-│  └────┬────┘  └─────┬──────┘  └────┬─────┘  └─────┬──────┘     │
-│       │             │              │              │             │
-│  ┌────▼─────────────▼──────────────▼──────────────▼─────┐      │
-│  │                    JPA Repositories                   │      │
-│  └───────────────────────────┬──────────────────────────┘      │
-└──────────────────────────────┼──────────────────────────────────┘
-                               │
-┌──────────────────────────────▼──────────────────────────────────┐
-│                        PostgreSQL Database                       │
-│  ┌────────┐  ┌───────────┐  ┌─────────────────┐  ┌───────────┐ │
-│  │ users  │  │ employees │  │vacation_requests│  │audit_logs │ │
-│  └────────┘  └───────────┘  └─────────────────┘  └───────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-```
+### Requisitos
+- Docker e Docker Compose
+- Java 17+
+- Node.js 18+
 
-## Pré-requisitos
+### Passo a passo
 
-- **Docker** e **Docker Compose**
-- **Java 17+**
-- **Maven 3.9+**
-- **Node.js 18+**
-- **npm 9+**
-
-## Instalação e Execução
-
-### 1. Clonar o Repositório
-
+**1. Clone e inicie o banco de dados:**
 ```bash
 git clone <repository-url>
 cd VacationManager
-```
-
-### 2. Iniciar o Banco de Dados
-
-```bash
 docker compose up -d
 ```
 
-Aguarde alguns segundos para o PostgreSQL inicializar.
-
-### 3. Iniciar o Backend
-
+**2. Inicie o backend:**
 ```bash
 cd backend
-
-# Linux/Mac
 ./mvnw spring-boot:run
-
-# Windows
-mvnw.cmd spring-boot:run
 ```
 
-O backend estará disponível em:
-- **API**: http://localhost:8080/api/v1
-- **Swagger UI**: http://localhost:8080/api/v1/swagger-ui.html
-
-### 4. Iniciar o Frontend
-
-Em outro terminal:
-
+**3. Em outro terminal, inicie o frontend:**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-O frontend estará disponível em:
-- **Web**: http://localhost:3000
+Pronto! Acesse http://localhost:3000 e faça login com um dos usuários de teste.
 
-## Comandos Úteis
+## Usuários para Teste
 
-### Backend
+| Perfil | Email | Senha |
+|--------|-------|-------|
+| Admin | admin@lbc.local | Admin123! |
+| Gestor | manager@lbc.local | Manager123! |
+| Colaborador | collab@lbc.local | Collab123! |
+
+## Documentação da API (Swagger)
+
+A API possui documentação interativa completa. Com o backend rodando, acesse:
+
+**http://localhost:8080/api/v1/swagger-ui.html**
+
+Lá você encontra:
+- Todos os endpoints organizados por categoria
+- Schemas de request e response com exemplos
+- Possibilidade de testar as chamadas diretamente
+- Códigos de erro documentados
+
+### Como testar pelo Swagger
+
+1. Acesse o Swagger UI
+2. Execute o endpoint `POST /auth/login` com as credenciais de teste
+3. Copie o token retornado
+4. Clique no botão **Authorize** (cadeado no topo)
+5. Cole o token e clique em Authorize
+6. Agora pode testar qualquer endpoint autenticado
+
+## Testes Automatizados
+
+O projeto inclui testes unitários para os principais serviços. Eles validam:
+
+- Fluxo de login e cadastro
+- Criação e aprovação de férias
+- Validações de datas e saldo
+- Regras de permissão
+- Operações de CRUD
+
+### Executando os testes
 
 ```bash
-# Rodar o projeto
 cd backend
-./mvnw spring-boot:run
 
-# Rodar migrations manualmente
-./mvnw flyway:migrate
-
-# Limpar e recompilar
-./mvnw clean compile
-
-# Gerar JAR
-./mvnw clean package -DskipTests
-
-# Rodar testes
+# Rodar todos os testes
 ./mvnw test
+
+# Rodar apenas testes dos services
+./mvnw test -Dtest="*ServiceTest"
+
+# Ver relatório detalhado
+./mvnw test -Dsurefire.reportFormat=plain
 ```
 
-### Frontend
-
-```bash
-cd frontend
-
-# Desenvolvimento
-npm run dev
-
-# Build de produção
-npm run build
-
-# Iniciar em produção
-npm start
-
-# Lint
-npm run lint
-```
-
-### Docker
-
-```bash
-# Iniciar banco
-docker compose up -d
-
-# Parar banco
-docker compose down
-
-# Parar e limpar volumes (apaga dados)
-docker compose down -v
-
-# Ver logs
-docker compose logs -f
-```
-
-## Variáveis de Ambiente
-
-### Backend
-
-| Variável | Descrição | Padrão |
-|----------|-----------|--------|
-| `DB_HOST` | Host do PostgreSQL | `localhost` |
-| `DB_PORT` | Porta do PostgreSQL | `5432` |
-| `DB_NAME` | Nome do banco | `vacation_manager` |
-| `DB_USER` | Usuário do banco | `postgres` |
-| `DB_PASSWORD` | Senha do banco | `postgres` |
-| `JWT_SECRET` | Chave secreta JWT | (gerado) |
-| `CORS_ALLOWED_ORIGINS` | Origens permitidas | `http://localhost:3000` |
-
-### Frontend
-
-Criar arquivo `.env.local`:
-
-```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1
-```
-
-## Usuários de Teste
-
-| Role | Email | Senha |
-|------|-------|-------|
-| **Admin** | admin@lbc.local | Admin123! |
-| **Manager** | manager@lbc.local | Manager123! |
-| **Collaborator** | collab@lbc.local | Collab123! |
-
-## Endpoints da API
-
-### Autenticação
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/auth/login` | Login e obtenção do token JWT |
-| GET | `/auth/me` | Dados do usuário autenticado |
-
-### Colaboradores
-| Método | Endpoint | Descrição | Roles |
-|--------|----------|-----------|-------|
-| GET | `/employees` | Listar colaboradores | Todos |
-| GET | `/employees/{id}` | Obter colaborador | Todos |
-| POST | `/employees` | Criar colaborador | Admin |
-| PUT | `/employees/{id}` | Atualizar colaborador | Admin |
-| DELETE | `/employees/{id}` | Remover colaborador (soft delete) | Admin |
-
-### Férias
-| Método | Endpoint | Descrição | Roles |
-|--------|----------|-----------|-------|
-| GET | `/vacations` | Listar pedidos de férias | Todos |
-| GET | `/vacations/{id}` | Obter pedido | Todos |
-| GET | `/vacations/calendar` | Férias para calendário | Todos |
-| POST | `/vacations` | Criar pedido | Todos |
-| PUT | `/vacations/{id}` | Atualizar pedido (apenas PENDING) | Próprio |
-| POST | `/vacations/{id}/cancel` | Cancelar pedido | Próprio |
-| POST | `/vacations/{id}/approve` | Aprovar pedido | Admin, Manager |
-| POST | `/vacations/{id}/reject` | Rejeitar pedido | Admin, Manager |
-
-### Saldos
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/balances?year=YYYY` | Listar saldos do ano |
-| GET | `/balances/employee/{id}` | Saldo de colaborador específico |
-
-### Auditoria
-| Método | Endpoint | Descrição | Roles |
-|--------|----------|-----------|-------|
-| GET | `/audit-logs` | Listar logs de auditoria | Admin |
-| GET | `/audit-logs/entity/{type}` | Filtrar por tipo de entidade | Admin |
-
-## Regras de Negócio
-
-### Roles e Permissões
-
-- **Admin**: Acesso total a todas as funcionalidades
-- **Manager**: Gerencia apenas colaboradores do seu time, pode aprovar/rejeitar férias do time
-- **Collaborator**: Gerencia apenas seus próprios pedidos de férias
-
-### Validação de Sobreposição de Férias
-
-A regra crítica do sistema impede sobreposição de férias entre quaisquer colaboradores:
-
-```
-Conflito existe quando:
-novoStart <= existenteEnd AND novoEnd >= existenteStart
-```
-
-- Datas são **inclusivas**
-- Validação ocorre em: criação, edição e aprovação
-- Apenas pedidos com status `PENDING` e `APPROVED` são considerados
-- Pedidos `REJECTED` e `CANCELLED` não entram na validação
-
-### Saldo Anual de Férias
-
-- Cada colaborador tem direito a **22 dias** por ano
-- Dias são descontados automaticamente ao aprovar férias
-- Dias são restaurados ao cancelar férias aprovadas
+Os testes usam JUnit 5 e Mockito, seguindo o padrão AAA (Arrange, Act, Assert) e boas práticas de isolamento.
 
 ## Estrutura do Projeto
 
 ```
 VacationManager/
 ├── backend/
-│   ├── src/main/java/com/eltonsantos/backend/
-│   │   ├── config/          # Configurações Spring
-│   │   ├── controller/      # Controllers REST
-│   │   ├── dto/             # Data Transfer Objects
-│   │   ├── entity/          # Entidades JPA
-│   │   ├── enums/           # Enumerações
-│   │   ├── exception/       # Exceções customizadas
-│   │   ├── repository/      # Repositórios JPA
-│   │   ├── security/        # Segurança JWT
-│   │   └── service/         # Serviços de negócio
-│   ├── src/main/resources/
-│   │   ├── db/migration/    # Migrations Flyway
-│   │   └── application.properties
-│   └── pom.xml
+│   ├── src/main/java/.../
+│   │   ├── controller/    # Endpoints REST
+│   │   ├── service/       # Lógica de negócio
+│   │   ├── repository/    # Acesso a dados
+│   │   ├── entity/        # Modelos JPA
+│   │   ├── dto/           # Objetos de transferência
+│   │   ├── security/      # Autenticação JWT
+│   │   └── exception/     # Tratamento de erros
+│   └── src/test/java/...  # Testes unitários
 ├── frontend/
-│   ├── app/                 # Next.js App Router
-│   ├── components/          # Componentes React
-│   ├── lib/                 # Utilitários e tipos
-│   ├── contexts/            # Contextos React
-│   └── package.json
-├── docker-compose.yml
-└── README.md
+│   ├── app/               # Páginas (App Router)
+│   ├── components/        # Componentes reutilizáveis
+│   ├── contexts/          # Estado global (Auth, Theme)
+│   └── lib/               # Utilitários e tipos
+└── docker-compose.yml     # Banco PostgreSQL
 ```
 
-## Deploy
+## Endpoints Principais
 
-### Sugestões de Deploy
+### Autenticação
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| POST | `/auth/login` | Login e obtenção do token |
+| POST | `/auth/signup` | Cadastro de novo usuário |
+| GET | `/auth/me` | Dados do usuário logado |
+| PUT | `/auth/me/password` | Alterar senha |
 
-- **Frontend**: Vercel
-- **Backend**: Render, Railway, ou AWS Elastic Beanstalk
-- **Banco de Dados**: Supabase, Neon, ou AWS RDS
+### Férias
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/vacations` | Listar solicitações |
+| POST | `/vacations` | Criar solicitação |
+| POST | `/vacations/{id}/approve` | Aprovar (gestor/admin) |
+| POST | `/vacations/{id}/reject` | Rejeitar (gestor/admin) |
+| POST | `/vacations/{id}/cancel` | Cancelar (próprio) |
 
-### Variáveis de Produção
+### Colaboradores
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/employees` | Listar colaboradores |
+| POST | `/employees` | Criar (admin) |
+| PUT | `/employees/{id}` | Atualizar (admin) |
+| DELETE | `/employees/{id}` | Remover (admin) |
 
-Certifique-se de configurar:
-- `JWT_SECRET` com uma chave segura de 256+ bits
-- `CORS_ALLOWED_ORIGINS` com o domínio do frontend
-- Conexão SSL com o banco de dados
+### Saldo e Auditoria
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/balances` | Saldos de férias |
+| GET | `/audit-logs` | Logs de auditoria (admin) |
 
-## Desenvolvedor
+## Variáveis de Ambiente
 
-**Elton Santos** - 2026
+O projeto funciona com valores padrão para desenvolvimento local. Para produção:
+
+| Variável | Descrição |
+|----------|-----------|
+| `DB_HOST` | Host do PostgreSQL |
+| `DB_PORT` | Porta do banco |
+| `DB_NAME` | Nome do banco |
+| `DB_USER` | Usuário |
+| `DB_PASSWORD` | Senha |
+| `JWT_SECRET` | Chave secreta (256+ bits) |
+| `CORS_ALLOWED_ORIGINS` | Domínios permitidos |
+
+## Arquitetura
+
+O sistema segue uma arquitetura em camadas:
+
+```
+Frontend (Next.js) 
+    ↓ HTTP/REST + JWT
+Backend (Spring Boot)
+    → Controllers (validação de entrada)
+    → Services (regras de negócio)
+    → Repositories (persistência)
+    ↓
+PostgreSQL
+```
+
+Cada camada tem responsabilidade bem definida, facilitando manutenção e testes.
+
+## Decisões Técnicas
+
+Algumas escolhas feitas durante o desenvolvimento:
+
+- **JWT stateless** - simplifica escalabilidade, não precisa de sessão no servidor
+- **Soft delete para colaboradores** - preserva histórico e integridade referencial
+- **Flyway para migrations** - versionamento do schema de forma controlada
+- **Validação em múltiplas camadas** - DTOs validam entrada, services validam regras
+- **Logs de auditoria** - rastreabilidade de todas as ações importantes
+
+## Próximos Passos
+
+Se fosse continuar o desenvolvimento, priorizaria:
+
+- Notificações por email quando férias são aprovadas/rejeitadas
+- Relatórios em PDF com resumo de férias por período
+- Integração com calendário externo (Google Calendar)
+- Funcionalidade de delegação durante ausência
 
 ---
 
-## Licença
-
-Este projeto foi desenvolvido como desafio técnico.
+Desenvolvido por **Elton Santos** - Janeiro 2026

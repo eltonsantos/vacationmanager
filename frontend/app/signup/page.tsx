@@ -94,6 +94,14 @@ export default function SignupPage() {
         className="space-y-5"
         noValidate
       >
+        <div className="bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded-lg flex items-start gap-2">
+          <span className="text-lg">&#9888;</span>
+          <p className="text-sm">
+            <strong>Aviso:</strong> O registro de novas contas através desta página ainda não está disponível. 
+            Por favor, contacte o administrador do sistema.
+          </p>
+        </div>
+
         <FormInput
           label="Nome completo"
           type="text"
