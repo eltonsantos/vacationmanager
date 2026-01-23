@@ -1,5 +1,6 @@
 package com.eltonsantos.backend.exception;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -96,17 +97,33 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(response);
     }
 
+    @Schema(description = "Resposta de erro padrão da API")
     public record ErrorResponse(
+            @Schema(description = "Data e hora do erro", example = "2026-01-23T14:30:00")
             LocalDateTime timestamp,
+            
+            @Schema(description = "Código de status HTTP", example = "404")
             int status,
+            
+            @Schema(description = "Descrição do status HTTP", example = "Not Found")
             String error,
+            
+            @Schema(description = "Mensagem detalhada do erro", example = "Recurso não encontrado")
             String message
     ) {}
 
+    @Schema(description = "Resposta de erro de validação com detalhes por campo")
     public record ValidationErrorResponse(
+            @Schema(description = "Data e hora do erro", example = "2026-01-23T14:30:00")
             LocalDateTime timestamp,
+            
+            @Schema(description = "Código de status HTTP", example = "400")
             int status,
+            
+            @Schema(description = "Descrição do erro", example = "Validation failed")
             String error,
+            
+            @Schema(description = "Mapa de erros por campo", example = "{\"email\": \"Email inválido\", \"password\": \"Senha é obrigatória\"}")
             Map<String, String> fieldErrors
     ) {}
 }
