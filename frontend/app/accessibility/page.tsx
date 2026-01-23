@@ -47,8 +47,8 @@ export default function AccessibilityPage() {
                 O VacationManager está em processo de implementação das diretrizes 
                 de acessibilidade definidas nas{' '}
                 <strong>Web Content Accessibility Guidelines (WCAG) 2.1</strong>, 
-                nível AA, conforme recomendado pela Agência para a Modernização 
-                Administrativa (AMA) de Portugal.
+                nível AA, conforme recomendado pela ARTE - Agência para a Reforma 
+                Tecnológica do Estado de Portugal.
               </p>
               <div className="mt-4 p-4 rounded-lg bg-[var(--status-pending-bg)]">
                 <p className="text-sm text-[var(--status-pending)]">
@@ -179,7 +179,7 @@ export default function AccessibilityPage() {
               </p>
               <p className="text-sm text-[var(--lbc-muted)] mt-1">
                 Esta declaração foi preparada com base no modelo recomendado 
-                pela Agência para a Modernização Administrativa (AMA).
+                pela ARTE - Agência para a Reforma Tecnológica do Estado.
               </p>
             </section>
           </div>
